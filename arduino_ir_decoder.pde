@@ -81,8 +81,8 @@ ISR(TIMER2_OVF_vect)
     }
     else if(state == STATE_SPACE){
       // if we are actively receiving a ir input and we are waiting
-      // for the next input for too long (over 10000 us) then the transmission must be complete
-      if(timeblock_counter >= 200){
+      // for the next input for too long (over 30000 us) then the transmission must be complete
+      if(timeblock_counter >= 600){
         state = STATE_FINISHED;
         timeblock_counter = 0;
         number_of_pulses = current_ir_pulse_index;
