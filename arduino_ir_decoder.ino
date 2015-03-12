@@ -1,4 +1,3 @@
-#include <WProgram.h>
 #include <avr/interrupt.h>
 
 #define INPUT_PIN_NUMBER 11  //the ir receiver pin
