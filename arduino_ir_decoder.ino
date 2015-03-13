@@ -25,7 +25,7 @@ volatile uint16_t number_of_pulses = 0;
 volatile uint8_t state;
 volatile uint16_t current_pulse_block_counter = 0; // Stores how many 50 microsecond blocks are in the currently pulse
 
-void setup(){
+int main(){
     TCCR2A = 0;  // Initialize Timer/Counter 2 Control Register A which set the timer register to normal mode and not in compare mode [Page 158]
     TCCR2B |= (1 << CS21); //Set the Timer/Counter2 prescaler to 8 [Page 162]
     TIMSK2 |= (1 << TOIE2);  // Enable the overflow interrupt for Timer/Counter2 [Page 163] 
@@ -36,15 +36,10 @@ void setup(){
     Serial.begin(9600);
   
     state = STATE_IDLE; // Initialize the global state
-}
-
-void loop(){
-    if(state == STATE_FINISHED){
-        cli();
-        print_out_pulse_details();
-        state = STATE_IDLE;
-        sei();
-    }
+	
+	while (1){}
+	
+	return 0;
 }
 
 // Timer/Counter 2 overflow interrupt handler
@@ -52,9 +47,6 @@ ISR(TIMER2_OVF_vect)
 {
     TCNT2 = TIMER_COUNT_START_VALUE; // Reset the initial Timer/Counter2 value.
   
-    // Ignore interrupt if the state is finished, as it needs to print out to the serial port first
-    if(state != STATE_FINISHED){ return; }
-    
     if(state == STATE_IDLE){
         if(IR_PIN_IS_ACTIVE){
             state = STATE_MARK;
@@ -77,10 +69,9 @@ ISR(TIMER2_OVF_vect)
     else if(state == STATE_SPACE){
         // Timeout after 30,000us (600 counts of 50us) as the transmission must be complete
         if(current_pulse_block_counter >= 600){
-            state = STATE_FINISHED;
             cli();
+			state = STATE_IDLE;
             print_out_pulse_details();
-            state = STATE_IDLE;
             current_pulse_block_counter = 0;
             number_of_pulses = current_ir_pulse_index;
             current_ir_pulse_index = 0;
